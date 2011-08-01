@@ -54,6 +54,15 @@ public class Gallery extends Model {
     @OneToMany(mappedBy = "gallery", fetch = FetchType.LAZY)
     public Set<Photo> photos;
     
+    @Column(nullable = false, name = "control_id")
+    public Long controlId = 0L;
+    
+    @Column
+    public boolean refresh;
+    
+    @Column(nullable = false, name = "page")
+    public int page = 1;
+    
     public Gallery() {
     }
 
