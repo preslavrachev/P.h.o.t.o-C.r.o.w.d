@@ -44,4 +44,6 @@ public interface PhotoService {
      * @return is the search key.
      */
     String getSearchKey();
+    
+    String[] findUrlByTweetId(long tweetId);
 }

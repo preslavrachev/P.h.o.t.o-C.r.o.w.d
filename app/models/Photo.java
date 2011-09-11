@@ -19,6 +19,9 @@ public class Photo extends Model {
 
     @Column(name = "tweet_content")
     public String tweetContent;
+    
+    @Column(name = "tweet_id")
+    public String tweetId;
 
     @URL
     @Column(name = "full_image_url")

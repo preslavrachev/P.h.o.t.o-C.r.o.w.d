@@ -3,7 +3,10 @@ package models;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 
+import play.Logger;
 import play.data.validation.Required;
+import utils.Twitter;
+import utils.Twitter.TwitterUser;
 
 @Entity
 public class User extends Model {
@@ -49,6 +52,22 @@ public class User extends Model {
 
     public static User findByTwitterId(Long twitterId) {
         return User.find("byTwitterId", twitterId).first();
+    }
+    
+    public static User findOrCreateByTwitterId(Long twitterId) {
+    	Logger.debug("trying to find or craete user with twitter id : %1s", twitterId);
+        User user = User.find("byTwitterId", twitterId).first();
+    	if(user==null){
+    		TwitterUser tUser = Twitter.getUserDetails(twitterId);
+    		user = new User();
+    		user.username = tUser.getScreenName();
+    		user.profileImageMiniUrl = Twitter.getProfileImageMiniUrl(tUser.getScreenName());
+    		user.profileImageBiggerUrl = Twitter.getProfileImageBiggerUrl(tUser.getScreenName());
+    		user.profileImageOriginalUrl = Twitter.getProfileImageOriginalUrl(tUser.getScreenName());
+    		user.twitterId = twitterId;
+    		user.save();
+    	}
+    	return user;
     }
 
 }

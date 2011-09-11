@@ -18,6 +18,7 @@ public class LockerzPhotoServiceTest extends UnitTest {
         assertEquals("http://lockerz.com/s/asdfg", results[0]);
     }
     
+    @Test
     public void findGotTwo() {
         LockerzPhotoService photoService = new LockerzPhotoService();
         String[] results = photoService.findURL("this is a tweet http://lockerz.com/s/asdfg ok http://lockerz.com/s/asdafds aa");
@@ -25,4 +26,10 @@ public class LockerzPhotoServiceTest extends UnitTest {
         assertEquals("http://lockerz.com/s/asdafds", results[1]);
     }
     
+    @Test
+    public void findTextOnlyUrl() {
+        LockerzPhotoService photoService = new LockerzPhotoService();
+        String[] results = photoService.findURL("http://lockerz.com/s/asdfg");
+        assertEquals("http://lockerz.com/s/asdfg", results[0]);
+    }   
 }

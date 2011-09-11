@@ -48,7 +48,7 @@ public class RetrieveGalleryPhotosJob extends Job<Void> {
         if (gallery.state == State.NEW) {
             QueryResult res = Twitter.query(searchQuery).sinceId(0).rpp(rpp)
                     .execute();
-            
+            Logger.debug("found %1s tweet to process", res.getTweets().size());
             for (JsonElement tweet : res.getTweets()) {
                 try {
                     processTweet(tweet);
@@ -199,6 +199,7 @@ public class RetrieveGalleryPhotosJob extends Job<Void> {
         
         User user = User.findByTwitterId(twitterId);
         if (user == null) {
+        	Logger.debug("creating a new user %1s", username);
             user = new User(twitterId, username).save();
         }
         
@@ -221,7 +222,9 @@ public class RetrieveGalleryPhotosJob extends Job<Void> {
             return;
         }
         
-        PhotoResource[] tweetPhotos = PhotoServices.extractPhotoResource(tweetText);
+//        PhotoResource[] tweetPhotos = PhotoServices.extractPhotoResource(tweetText);
+        PhotoResource[] tweetPhotos = PhotoServices.extractPhotoResourceFromTweetId(id);
+        Logger.debug("processing tweet with text:%1s", tweetText);
         if (tweetPhotos != null) {
             Logger.debug("Found recognize url from tweet: %1s", tweetText);
             for (PhotoResource tweetPhoto : tweetPhotos) {

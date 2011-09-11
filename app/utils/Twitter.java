@@ -3,7 +3,9 @@ package utils;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import play.Logger;
 import play.libs.WS;
@@ -11,7 +13,10 @@ import play.libs.WS.HttpResponse;
 import play.libs.WS.WSRequest;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
+import controllers.Secure;
 
 /**
  * @author uudashr@gmail.com
@@ -19,6 +24,62 @@ import com.google.gson.JsonObject;
  */
 public class Twitter {
     public static final String DATE_FORMAT = "yyyy-MM-dd";
+    
+    /**
+     * A method to get a single tweet status
+     * @param tweetId
+     * @return
+     */
+    public static TwitterStatus getStatus(long tweetId){
+    	WSRequest req = WS.url("http://api.twitter.com/1/statuses/show/"+tweetId+".json?include_entities=true");
+    	HttpResponse res = req.get();
+    	JsonObject jsonObj = res.getJson().getAsJsonObject();
+    	if(res.getStatus()!=200){
+    		String errorMessage = jsonObj.get("error").getAsString();
+            String message = String.format("Found non 200 HTTP status code: statusCode = %1s; %2s", res.getStatus(), errorMessage);
+            Logger.error(message);
+            throw new QueryExecutionException(res.getStatus(), message);
+    	}
+    	return new TwitterStatus(jsonObj);
+    }
+    
+    /**
+     * A method to get a single tweet status
+     * @param tweetId
+     * @return
+     */
+    public static TwitterUser getUserDetails(long twitterUserId){
+    	WSRequest req = WS.url("http://api.twitter.com/1/users/show.json");
+    	req.setParameter("user_id", twitterUserId);
+    	HttpResponse res = req.get();
+    	JsonObject jsonObj = res.getJson().getAsJsonObject();
+    	if(res.getStatus()!=200){
+    		String errorMessage = jsonObj.get("error").getAsString();
+            String message = String.format("Found non 200 HTTP status code: statusCode = %1s; %2s", res.getStatus(), errorMessage);
+            Logger.error(message);
+            throw new QueryExecutionException(res.getStatus(), message);
+    	}
+    	return new TwitterUser(jsonObj);
+    }
+    
+    public static String getProfileImageMiniUrl(String screenName){
+		return retrieveProfileImageUrl(screenName, "mini");
+	}
+	public static String getProfileImageBiggerUrl(String screenName){
+		return retrieveProfileImageUrl(screenName, "bigger");
+	}
+	public static String getProfileImageOriginalUrl(String screenName){
+		return retrieveProfileImageUrl(screenName, "original");
+	}
+	
+    public static String retrieveProfileImageUrl(String username, String size) {
+        HttpResponse resp = WS.url("http://api.twitter.com/1/users/profile_image").setParameter("screen_name", username).setParameter("size", size).followRedirects(false).get();
+        if (resp.getStatus() == 302) {
+            return resp.getHeader("location");
+        }
+        return null;
+    }
+    
     
     public static TwitterQuery query(String query) {
         return new TwitterQuery(query);
@@ -88,6 +149,7 @@ public class Twitter {
                 Logger.error(message);
                 throw new QueryExecutionException(resp.getStatus(), message);
             }
+            Logger.debug("search result %1s", jsonObj.toString());
             return new QueryResult(jsonObj);
         }
     }
@@ -226,6 +288,37 @@ public class Twitter {
         public JsonObject getJsonObject() {
             return jsonObj;
         }
+    }
+    
+    public static class TwitterStatus {
+    	private JsonObject jsonObj;
+    	
+    	public TwitterStatus(JsonObject jsonObj){
+    		this.jsonObj = jsonObj;
+    	}
+    	
+    	public List<String> getExpendedUrls(){
+    		List<String> urls = new ArrayList<String>();
+    		JsonArray jsonArray = jsonObj.getAsJsonObject("entities").getAsJsonArray("urls");
+    		for (JsonElement jsonElement : jsonArray) {
+				String url = jsonElement.getAsJsonObject().get("expanded_url").getAsString();
+				urls.add(url);				
+			}
+    		return urls;
+    	}
+    }
+    
+    public static class TwitterUser {
+    	private JsonObject jsonObj;
+    	
+    	public TwitterUser(JsonObject jsonObj){
+    		this.jsonObj = jsonObj;
+    	}
+    	
+    	public String getScreenName(){
+    		return jsonObj.get("screen_name").getAsString();
+    	}
+
     }
     
     public static class QueryExecutionException extends RuntimeException {

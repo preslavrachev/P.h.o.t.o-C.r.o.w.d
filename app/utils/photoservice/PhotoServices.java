@@ -1,7 +1,9 @@
 package utils.photoservice;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import play.Logger;
@@ -43,6 +45,32 @@ public class PhotoServices {
         }
         return null;
     }
+    
+    /**
+     * This will extract the photo resources from a tweet text.
+     * 
+     * @param tweet is the tweet text
+     * @return the photo resources.
+     */
+    public static PhotoResource[] extractPhotoResourceFromTweetId(long tweetId) {
+    	List<PhotoResource> urlList = new ArrayList<PhotoResource>();
+        for (PhotoService service : photoServices.values()) {
+        	Logger.debug("using photoservice %1s", service.getClass().getName());
+            String[] urls = service.findUrlByTweetId(tweetId);
+            Logger.debug("Found %1s", Arrays.toString(urls));
+            if (urls.length >0) {
+                for (int i = 0; i < urls.length; i++) {
+                    urlList.add(new PhotoResource(urls[i], service));
+                }
+            }
+        }
+        if(urlList.size()>0){
+        	PhotoResource[] urls = new PhotoResource[urlList.size()];
+        	return urlList.toArray(urls);
+        }
+        return null;
+    }
+    
     
 
     /**
