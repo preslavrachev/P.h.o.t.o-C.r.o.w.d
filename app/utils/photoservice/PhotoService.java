@@ -46,4 +46,6 @@ public interface PhotoService {
     String getSearchKey();
     
     String[] findUrlByTweetId(long tweetId);
+    
+    boolean isUsingService(String url);
 }

@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.sun.mail.handlers.text_html;
+
 import play.Logger;
 
 import sun.print.resources.serviceui;
@@ -40,6 +42,9 @@ public abstract class AbstractPhotoService implements PhotoService {
         return urls.toArray(new String[urls.size()]);
     }
     
+    public boolean isUsingService(String url){
+    	return url.matches(urlPattern.pattern());
+    }
     
     @Override
 	public String[] findUrlByTweetId(long tweetId) {

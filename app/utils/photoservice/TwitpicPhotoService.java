@@ -1,6 +1,7 @@
 package utils.photoservice;
 
 import java.io.IOException;
+import java.util.List;
 
 import net.htmlparser.jericho.Element;
 import net.htmlparser.jericho.Source;
@@ -27,7 +28,7 @@ public class TwitpicPhotoService extends AbstractPhotoService {
     public ImageAndThumbnailUrlHolder grab(String photoUrl) {
         String imageId = parseId(photoUrl);
         
-        String imageUrl = grabImageUrl(photoUrl);
+        String imageUrl = grabImageUrlFromImageId(imageId);
         if (imageUrl == null) {
             return null;
         }
@@ -57,6 +58,26 @@ public class TwitpicPhotoService extends AbstractPhotoService {
             return url;
         } catch (IOException e) {
             Logger.error(e, "Failed getting photo from twitpic using URL %s", photoUrl);
+        }
+        return null;
+    }
+    
+    private static String grabImageUrlFromImageId(String imageId) {
+        HttpResponse res = WS.url("http://twitpic.com/%s/full", imageId).get();
+        StringBuffer html = new StringBuffer(res.getString());
+        Source source;
+        try {
+            source = new Source(new ByteInputStream(html.toString().getBytes(),
+                    html.toString().length()));
+            List<Element> els = source.getAllElements("img");
+            String url = "";
+            for (Element element : els) {            	
+				url = element.getAttributeValue("src");
+			}
+            Logger.info("Getting full image url : %s using %s photo service", url, TwitpicPhotoService.class.getName());
+            return url;
+        }catch(Exception e){
+        	Logger.error(e, "Failed getting photo from twitpic using imageId %s", imageId);
         }
         return null;
     }

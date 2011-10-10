@@ -4,8 +4,10 @@ import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -22,6 +24,7 @@ import utils.Twitter.QueryResult;
 import utils.photoservice.PhotoServices;
 import utils.photoservice.PhotoServices.PhotoResource;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -159,14 +162,11 @@ public class RetrieveGalleryPhotosJob extends Job<Void> {
      * @return the query.
      */
     private static String buildQuery(Gallery gallery) {
-        
         QueryBuilder queryBuilder = new QueryBuilder(
                 "#" + gallery.hashtag 
                 + " " + photoServiceQueryPart() + " -RT");
-        
         if (gallery.startDate != null) {
             queryBuilder.since(gallery.startDate);
-            
             if(Play.configuration.getProperty("twitter.search.until.enabled", "true").equals("true")) {
                 if (gallery.endDate != null) {
                     queryBuilder.until(gallery.endDate);
@@ -222,8 +222,13 @@ public class RetrieveGalleryPhotosJob extends Job<Void> {
             return;
         }
         
-//        PhotoResource[] tweetPhotos = PhotoServices.extractPhotoResource(tweetText);
-        PhotoResource[] tweetPhotos = PhotoServices.extractPhotoResourceFromTweetId(id);
+        
+        List<String> urlList = getExpandedUrls(tweetObject);
+        String [] urlArray = new String[urlList.size()];
+        
+        Logger.debug("expandeed url %s", Arrays.toString(urlList.toArray(urlArray)));        
+        PhotoResource[] tweetPhotos = PhotoServices.mapUrlToPhotoService(urlList.toArray(urlArray));
+        
         Logger.debug("processing tweet with text:%1s", tweetText);
         if (tweetPhotos != null) {
             Logger.debug("Found recognize url from tweet: %1s", tweetText);
@@ -232,6 +237,21 @@ public class RetrieveGalleryPhotosJob extends Job<Void> {
             }
         }
     }
+
+	public List<String> getExpandedUrls(JsonObject tweetObject) {
+		//Get real link of the image urls
+        List<String> urlList = new ArrayList<String>();
+        JsonElement entities = tweetObject.get("entities");
+        if( entities != null){
+        	JsonArray urls = entities.getAsJsonObject().get("urls").getAsJsonArray();
+        	if(urls !=null){
+        		for (JsonElement urlObject : urls) {
+        			urlList.add(urlObject.getAsJsonObject().get("expanded_url").getAsString());
+				}
+        	}
+        }
+		return urlList;
+	}
     
     /**
      * Create the date formatter compatible with twitter date.

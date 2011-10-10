@@ -46,6 +46,24 @@ public class PhotoServices {
         return null;
     }
     
+    public static PhotoResource[] mapUrlToPhotoService(String[] urls){
+    	List<PhotoResource> photoResources = new ArrayList<PhotoServices.PhotoResource>();
+    	for (String url : urls) {
+    		
+			for(PhotoService service : photoServices.values()){
+				if(service.isUsingService(url)){
+					Logger.debug("Found photo url %s using %s photo service" , url, service.getClass().getName());
+					photoResources.add(new PhotoResource(url, service));
+				}
+			}
+		}
+    	if(photoResources.size()>0){
+        	PhotoResource[] photoResArray = new PhotoResource[photoResources.size()];
+        	return photoResources.toArray(photoResArray);
+        }
+        return null;
+    }
+    
     /**
      * This will extract the photo resources from a tweet text.
      * 
@@ -71,6 +89,28 @@ public class PhotoServices {
         return null;
     }
     
+    public static PhotoResource[] cratePhotoResources(String[] urls){
+    	List<PhotoResource> urlList = new ArrayList<PhotoResource>();
+        for (PhotoService service : photoServices.values()) {
+            if (urls.length >0) {
+                for (int i = 0; i < urls.length; i++) {
+                	String[] matchUrls = service.findURL(urls[i]);
+                	if(matchUrls !=null){
+                    	Logger.debug("using photoservice %1s", service.getClass().getName());           
+                        Logger.debug("Found %1s", Arrays.toString(matchUrls));
+                		for (String string : matchUrls) {
+                    		urlList.add(new PhotoResource(string, service));
+    					}                	
+                	}                	
+                }
+            }
+        }
+        if(urlList.size()>0){
+        	PhotoResource[] photoServices = new PhotoResource[urlList.size()];
+        	return urlList.toArray(photoServices);
+        }
+        return null;
+    }
     
 
     /**

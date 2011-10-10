@@ -16,5 +16,4 @@ public class JobsInitializer extends Job<Void> {
         galleryManagerJob.every(30);
         galleryManagerJob.now();
     }
-
 }
