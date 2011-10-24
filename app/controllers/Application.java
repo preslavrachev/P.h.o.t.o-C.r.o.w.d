@@ -1,6 +1,9 @@
 package controllers;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gson.JsonElement;
 
@@ -35,11 +38,23 @@ public class Application extends Controller {
 		}
     }
     
-    public static void newtest(){
-    	WSRequest req = WS.url("http://192.168.1.100/~aviandri/tweet_data.json");
-    	HttpResponse res = req.get();
-    	JsonElement element = res.getJson();
-    	String url = element.getAsJsonObject().get("entities").getAsJsonObject().get("urls").getAsJsonArray().get(0).getAsJsonObject().get("url").getAsString();
-    	Logger.debug("the url found is %s", url);
+    public static void json(){
+    	Map<String, Object> photos = new HashMap<String, Object>();
+    	List<Map<String, String>> photosList = new ArrayList<Map<String,String>>();
+    	Map<String, String> photo1 = new HashMap<String, String>();
+    	photo1.put("url", "images/photos/opening-ceremony-penfield-fall-2009-00.jpg");
+    	photo1.put("poster", "aviandri");
+    	photo1.put("text", "Deploy then launch.. Makan2 jgn lupa.. RT: andriavi Kereen RT @uudashr: Done refactoring... pass all test");
+    	
+    	Map<String, String> photo2 = new HashMap<String, String>();
+    	photo2.put("url", "images/photos/opening-ceremony-penfield-fall-2009-00.jpg");
+    	photo2.put("poster", "aviandri");
+    	photo2.put("text", "Deploy then launch.. Makan2 jgn lupa.. RT: andriavi Kereen RT @uudashr: Done refactoring... pass all test");
+    	
+    	photosList.add(photo1);
+    	photosList.add(photo2);
+    	
+    	photos.put("photos", photosList);
+    	
     }
 }

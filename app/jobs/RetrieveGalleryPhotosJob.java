@@ -49,6 +49,7 @@ public class RetrieveGalleryPhotosJob extends Job<Void> {
         final int rpp = Integer.parseInt(Play.configuration.getProperty(
                 "twitter.search.rpp", "15"));
         if (gallery.state == State.NEW) {
+        	Logger.debug("entering new twitter state");
             QueryResult res = Twitter.query(searchQuery).sinceId(0).rpp(rpp)
                     .execute();
             Logger.debug("found %1s tweet to process", res.getTweets().size());
@@ -74,6 +75,7 @@ public class RetrieveGalleryPhotosJob extends Job<Void> {
             
             gallery.save();
         } else if (gallery.state == State.FETCH_OLDER) {
+        	Logger.debug("entering fetch old twitter state");
             int newPage = gallery.lastPage + 1;
             Logger.debug("Query maxId=%1s page=%2s rpp=%3s", gallery.maxId,
                     newPage, rpp);
@@ -105,6 +107,7 @@ public class RetrieveGalleryPhotosJob extends Job<Void> {
             
             gallery.save();
         } else if (gallery.state == State.FETCH_YOUNGER) {
+        	Logger.debug("entering fetch younger twitter state");
             QueryResult res = Twitter.query(searchQuery).sinceId(gallery.maxId).rpp(rpp).execute();
             boolean passEndDate = new Date().after(gallery.endDate);
             
