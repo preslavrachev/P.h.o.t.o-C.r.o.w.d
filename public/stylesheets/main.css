@@ -2,6 +2,7 @@ body {
     margin: 0;
     font-family: Helvetica, Tahoma, Arial, sans-serif;
     font-size: 12px;
+		background: url('../images/grayBg.jpg') fixed repeat;
 }
 
 #top-bar {
@@ -101,11 +102,6 @@ body {
     text-shadow: 0 0 5px #456f23;
     position: relative;
     top: -1px;
-}
-
-#top-bar .container.create-crowd:hover .create-sign {
-    color: #93d372;
-    text-shadow: 0 0 5px #93d372;
 }
 
 #top-bar .container.create-crowd .crowd-text {

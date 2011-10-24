@@ -13,7 +13,6 @@ import play.libs.WS.HttpResponse;
 import play.libs.WS.WSRequest;
 import play.mvc.Http.Header;
 import utils.photoservice.PhotoService;
-import utils.photoservice.TcoService;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -28,21 +27,6 @@ import controllers.Secure;
 public class Twitter {
     public static final String DATE_FORMAT = "yyyy-MM-dd";
     
-    
-    public static String[] getOriginalPictureLink(String tweet){
-    	PhotoService tcoService = new TcoService();
-    	String[] tcoUrls = tcoService.findURL(tweet);
-    	String[] urls = new String[tcoUrls.length];
-    	for (int i=0; i< tcoUrls.length ; i++) {
-    		Logger.debug("tco urls %1s", tcoUrls[i]);
-    		WSRequest req = WS.url(tcoUrls[i]).followRedirects(true);
-    		Logger.debug("going to call url");
-    		HttpResponse res = req.get();
-        	urls[i] = res.getHeader("Location");
-        	Logger.debug("real url %1s", urls[i]);
-		}
-    	return urls;  
-    }
     /**
      * A method to get a single tweet status
      * @param tweetId
